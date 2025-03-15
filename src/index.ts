@@ -92,7 +92,7 @@ export function apply(ctx: Context, config) {
 
       if (!ament_icon_url) {
         await session.send("未找到图片链接！");
-        return '未找到图片链接！'
+        return
       }
 
       try {
