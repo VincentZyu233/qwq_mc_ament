@@ -69,7 +69,7 @@ export function apply(ctx: Context, config) {
         logInfo("引用的消息内容：", session.quote?.content);
         ament_icon_url = await extractFirstImageUrl(session.quote?.content);
       } else if (ament_icon) {
-        ament_icon_url = await extractFirstImageUrl(ament_icon); // 图片元素或者直链
+        ament_icon_url = await ament_icon.src; // 图片元素或者直链
       } else {
         if (!config.usedavatar) {
           logInfo("等待用户输入...");
