@@ -150,7 +150,8 @@ box-sizing: border-box;
 .icon {
 width: ${config.ICONpoint[0]}px; /* 图标大小 */
 height: ${config.ICONpoint[1]}px; /* 图标大小 */
-margin-right: 15px;
+margin-right: 20px;
+margin-left: -5px;
 background-image: url(data:image/png;base64,${amentIconBase64}); /* 使用图片 URL */
 background-size: cover;
 background-position: center;
