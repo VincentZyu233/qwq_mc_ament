@@ -6,7 +6,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 export const inject = {
-  required: ["puppeteer", "http", "i18n", "canvas"]
+  required: ["puppeteer", "http", "logger", "i18n", "canvas"]
 }
 
 export const name = 'qwq-mc-ament'
@@ -45,7 +45,12 @@ export function apply(ctx: Context, config) {
         },
         description: "生成一个MC风格的成就图片",
         messages: {
+          imageplz: "请发送图片消息：",
+          waitTimeout: "未收到图片，操作已取消。",
+          invalidimage: "未找到图片链接！",
+          failedfetch: "图片访问失败！",
         },
+        // session.text(".")
       },
     }
   });
@@ -73,13 +78,13 @@ export function apply(ctx: Context, config) {
       } else {
         if (!config.usedavatar) {
           logInfo("等待用户输入...");
-          await session.send("请发送图片消息：");
+          await session.send(session.text(".imageplz"));
           const promptResult = await session.prompt(config.promptTimeout * 1000);
           if (promptResult) { // 确保 promptResult 不为 null 或 undefined
             ament_icon_url = await extractFirstImageUrl(promptResult);
           } else {
-            await session.send("未收到图片，操作已取消。");
-            return '未收到图片，操作已取消。';
+            await session.send(session.text(".waitTimeout"));
+            return;
           }
         } else {
           ament_icon_url = session.event.user.avatar
@@ -91,15 +96,15 @@ export function apply(ctx: Context, config) {
       logInfo("ICON链接：", ament_icon_url);
 
       if (!ament_icon_url) {
-        await session.send("未找到图片链接！");
+        await session.send(session.text(".invalidimage"));
         return
       }
 
       try {
         const imageBuffer = await ctx.http.file(ament_icon_url);
         if (!imageBuffer) {
-          await session.send("图片访问失败！");
-          return '图片访问失败！'
+          await session.send(session.text(".failedfetch"));
+          return
         } else (
           logInfo(imageBuffer)
         );
@@ -112,9 +117,9 @@ export function apply(ctx: Context, config) {
 
         // 获取背景图尺寸
         const backgroundImage = await ctx.canvas.loadImage(`data:image/png;base64,${backgroundBase64}`);
-        // @ts-ignore  忽略类型检查
+        // @ts-ignore  忽略类型检查 // 兼容puppeteer和canvas的canvas调用
         const originalWidth = backgroundImage.naturalWidth || backgroundImage.width;
-        // @ts-ignore 忽略类型检查
+        // @ts-ignore 忽略类型检查 // 兼容puppeteer和canvas的canvas调用
         const originalHeight = backgroundImage.naturalHeight || backgroundImage.height;
 
         await page.setViewport({ width: originalWidth, height: originalHeight });
